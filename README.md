@@ -1,95 +1,94 @@
-# PPTX to PDF, Maximum Image Fidelity
+# PPTX Ultra Exporter
 
-There are now two exporters in this folder.
+A local Windows app for exporting PowerPoint decks to high-resolution raster PDFs
+without lossy PDF image recompression.
 
-Use `Export-PptxUltraRasterPdf.ps1` if PowerPoint's native PDF export visibly
-compresses your images. It renders each slide as a high-resolution PNG and then
-builds a PDF from those rendered slide images without lossy JPEG recompression.
+It was made for oversized architecture/portfolio boards where PowerPoint's
+native PDF export visibly compresses drawings, renders, or detailed images.
 
-Use `Export-PptxLosslessPdf.ps1` only if you want to try PowerPoint's native
-high-fidelity fixed-format export.
+## What It Does
 
-## Best Visual Quality
+- Upload a `.pptx` through a local web UI.
+- Export each slide through PowerPoint as a high-resolution PNG.
+- Assemble those slide PNGs into a PDF using raw or lossless image streams.
+- Optionally export only one of four horizontal panels before PDF assembly.
+
+The result is a visual-fidelity PDF. Text and vector shapes become high
+resolution pixels.
+
+## Requirements
+
+- Windows
+- Microsoft PowerPoint installed
+- Node.js 18 or newer
+- Python 3 with Pillow and pypdf
+
+If you are running this from Codex, the included scripts already point to the
+bundled Codex Python. Friends using this from GitHub may need to edit
+`tools/Export-PptxUltraRasterPdf.ps1` and `tools/Crop-PdfRightQuarter.ps1`, or
+pass `-PythonPath`, if their Python is elsewhere.
+
+Install Python packages:
 
 ```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\Export-PptxUltraRasterPdf.ps1 -PptxPath "C:\path\to\deck.pptx"
+pip install pillow pypdf
 ```
 
-By default, the PDF is written next to the deck as:
+## Run
+
+```powershell
+npm start
+```
+
+Then open:
 
 ```text
-deck.ultra-raster-600dpi.pdf
+http://localhost:5177
 ```
 
-For even more zoom/detail, try 1200 DPI:
+On Windows you can also double-click:
 
-```powershell
-.\Export-PptxUltraRasterPdf.ps1 -PptxPath "C:\path\to\deck.pptx" -Dpi 1200
+```text
+start-windows.bat
 ```
 
-This can create a very large PDF.
+Finished PDFs are copied to your Windows `Downloads` folder. The browser
+download button still works too.
 
-By default, `Export-PptxUltraRasterPdf.ps1` embeds raw RGB slide images. That
-means no lossy image recompression, but the PDF can be huge. To use lossless
-Flate compression instead:
+## Quality Settings
 
-```powershell
-.\Export-PptxUltraRasterPdf.ps1 -PptxPath "C:\path\to\deck.pptx" -Compression Flate
-```
+- `300 DPI`: smaller and fast.
+- `600 DPI`: good default for very detailed boards.
+- `1200 DPI`: extreme zoom quality, large files.
+- `Raw`: no compression in the PDF image streams, huge files.
+- `Flate`: lossless compression, usually much smaller.
 
-## Native PowerPoint Export
+## Cropping
 
-To try PowerPoint's native PDF export:
+If your slide is four A1 panels side by side, choose:
 
-```powershell
-.\Export-PptxLosslessPdf.ps1 `
-  -PptxPath "C:\path\to\deck.pptx" `
-  -PdfPath "C:\path\to\deck.lossless.pdf"
-```
+- `Panel 1 of 4`
+- `Panel 2 of 4`
+- `Panel 3 of 4`
+- `Panel 4 of 4`
 
-To open the PDF after export:
+The crop happens on the exported slide PNGs before PDF assembly. That keeps the
+selected panel sharp while avoiding a huge hidden full-width image inside the
+PDF.
 
-```powershell
-.\Export-PptxLosslessPdf.ps1 -PptxPath "C:\path\to\deck.pptx" -OpenAfterExport
-```
+## Notes
 
-## Strict mode
+This app cannot recover quality already lost inside the PPTX. If PowerPoint
+already compressed an image before export, reinsert the original image first.
 
-If you want the tool to fail when the PPTX contains JPEG media, use:
+For best source quality in PowerPoint:
 
-```powershell
-.\Export-PptxLosslessPdf.ps1 -PptxPath "C:\path\to\deck.pptx" -Strict
-```
-
-JPEGs are already lossy inside the PPTX. The script can preserve the deck's
-source quality, but it cannot restore pixels that PowerPoint or another tool
-already compressed before export.
-
-## What the native tool does
-
-- Uses Microsoft PowerPoint's `ExportAsFixedFormat` API.
-- Uses print-intent PDF export.
-- Exports slides directly, not handouts.
-- Avoids PDF/A, which can force extra conversions.
-- Avoids bitmap-substituting missing fonts.
-- Scans `ppt/media` and reports embedded image formats before export.
-
-## Important limits
-
-No PDF exporter can guarantee mathematically lossless output for every possible
-PowerPoint object. Transparency, effects, masks, 3D transforms, video stills,
-or unsupported fonts can cause PowerPoint to render parts of a slide.
-
-`Export-PptxUltraRasterPdf.ps1` is a visual-fidelity tool. It converts each
-slide to pixels first, so text and vector shapes will no longer remain editable
-or infinitely scalable in the PDF. Increase `-Dpi` if you need cleaner zoom.
-
-For the cleanest source deck before exporting:
-
-- In PowerPoint, set `File > Options > Advanced > Image Size and Quality`.
-- Check `Do not compress images in file`.
+- Open `File > Options > Advanced > Image Size and Quality`.
+- Enable `Do not compress images in file`.
 - Set default resolution to `High fidelity`.
-- Reinsert any images that were previously compressed by PowerPoint.
+
+## License
+
+MIT
 
 ===== made with Codex, model: gpt-5.5 =====
