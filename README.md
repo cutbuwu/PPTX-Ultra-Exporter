@@ -91,4 +91,4 @@ For best source quality in PowerPoint:
 
 MIT
 
-===== made with Codex, model: gpt-5.5 =====
+
